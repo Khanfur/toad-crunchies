@@ -1,12 +1,9 @@
-import './globals.css'
+import './globals.scss'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Toad crunchies',
-  description: 'A recipe website',
+  description: 'Toad crunchies recipes. The flavour is on your side.',
 }
 
 export default function RootLayout({
@@ -19,7 +16,7 @@ export default function RootLayout({
     <head>
       <link rel="icon" href="/favicon.ico" sizes="any" />
     </head>
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   )
 }

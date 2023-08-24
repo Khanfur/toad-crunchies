@@ -1,0 +1,66 @@
+:root {
+  --font-stack-default: 'Montserrat Variable', sans-serif
+}
+
+html, body {
+  font-family: var(--font-stack-default);
+}
+
+html, body {
+  font-family: var(--font-stack-default);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  color: var(--color-grey-1);
+}
+
+h1 {
+  font-size: 72px;
+  line-height: 96px;
+}
+
+h2 {
+  font-size: 64px;
+  line-height: 86px;
+}
+
+h3 {
+  font-size: 48px;
+  line-height: 64px;
+}
+
+h4 {
+  font-size: 32px;
+  line-height: 43px;
+}
+
+h5 {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+h6 {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+p {
+  color: var(--color-grey-2);
+
+  &.lead {
+    font-size: 16px;
+    line-height: 32px;
+  }
+
+  &.regular {
+    font-size: 14px;
+    line-height: 24px;
+  }
+
+  &.small {
+    font-size: 12px;
+    line-height: 24px;
+  }
+
+}
