@@ -1,0 +1,22 @@
+$breakpoints: (
+    mobile: 150px,
+    tablet: 768px,
+    laptop: 1225px,
+    desktop: 1610px
+);
+
+$grid-gutters: (
+    mobile: 16px,
+    tablet: 16px,
+    laptop: 100px,
+    desktop: 100px,
+);
+
+$grid-gaps: (
+    mobile: 15px,
+    tablet: 15px,
+    laptop: 30px,
+    desktop: 30px
+);
+
+$max-overflow-content: 100%;

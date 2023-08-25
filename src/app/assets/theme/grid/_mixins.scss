@@ -1,0 +1,125 @@
+@use 'sass:map';
+
+@import "variables";
+@import "../mixins";
+
+@function checkNegative($value) {
+    @if($value > 0) {
+        @return $value
+    } @else {
+        @return 0
+    }
+};
+
+@mixin max-container-width($max-widths: $breakpoints, $gutters: $grid-gutters) {
+    @each $breakpoint, $container-max-width in $max-widths {
+        @include media-breakpoint-up($breakpoint) {
+            $gutter: map.get($gutters, $breakpoint) * 2;
+            width: 100%;
+            max-width: calc(100% - #{$gutter});
+            margin: 0 auto;
+
+            @if($breakpoint == desktop) {
+                max-width: calc(#{$container-max-width} - #{$gutter});
+            }
+        }
+    }
+}
+
+@mixin overflow-grid($max-widths: $breakpoints, $with-gap: false, $row-gap: false, $gutters: $grid-gutters, $gaps: $grid-gaps) {
+    @each $breakpoint, $container-max-width in $max-widths {
+        @include media-breakpoint-up($breakpoint) {
+            @include generate-overflow-grid($with-gap, $row-gap, $gutters, $gaps, $breakpoint)
+        }
+    }
+}
+
+@mixin generate-overflow-grid($with-gap, $row-gap, $gutters, $gaps, $breakpoint) {
+    display: grid;
+    width: 100%;
+    max-width: $max-overflow-content;
+    $gutter: map.get($gutters, $breakpoint);
+    $gutter-calc: $gutter * 2;
+    $container-content-width: calc(100% - #{$gutter-calc});
+
+    @if ($breakpoint == desktop) {
+        $container-content-width: calc(#{map.get($breakpoints, desktop)} - #{$gutter-calc});
+    }
+
+    $grid-content-size: calc(#{$container-content-width} / 12);
+    $gap: map.get($gaps, $breakpoint);
+
+    @if ($with-gap) {
+        grid-column-gap: $gap;
+        $grid-content-size: calc(#{$container-content-width} / 12 - #{$gap} / 12 * 11);
+        $gutter: checkNegative($gutter - $gap);
+
+    }
+    @if ($row-gap) {
+        grid-row-gap: $gap;
+    }
+
+    grid-template-columns:
+              [full-start] minmax($gutter, 1fr)
+              [col-0] $grid-content-size
+              [col-1] $grid-content-size
+              [col-2] $grid-content-size
+              [col-3] $grid-content-size
+              [col-4] $grid-content-size
+              [col-5] $grid-content-size
+              [col-6] $grid-content-size
+              [col-7] $grid-content-size
+              [col-8] $grid-content-size
+              [col-9] $grid-content-size
+              [col-10] $grid-content-size
+              [col-11] $grid-content-size
+              [col-12] minmax($gutter, 1fr)
+              [full-end];
+}
+
+@mixin generate-grid-classes() {
+    @each $breakpoint, $_ in $breakpoints {
+        @include grid-classes($breakpoint);
+    }
+}
+
+@mixin grid-classes($breakpoint) {
+    $breakpointString: '';
+    @if $breakpoint {
+        $breakpointString: '-#{$breakpoint}';
+    }
+    @for $i from 0 through 12 {
+        @if ($breakpoint) {
+            @include media-breakpoint-up($breakpoint) {
+                .col-#{$i}-start#{$breakpointString} {
+                    grid-column-start: col-#{$i};
+                }
+            }
+        }
+
+        @if ($breakpoint) {
+            @include media-breakpoint-up($breakpoint) {
+                .col-#{$i}-end#{$breakpointString} {
+                    grid-column-end: col-#{$i};
+                }
+            }
+        }
+    }
+
+    @if $breakpoint {
+        @include media-breakpoint-up($breakpoint) {
+            .col-full-start#{$breakpointString} {
+                grid-column-start: full-start;
+            }
+
+            .col-full-end#{$breakpointString} {
+                grid-column-end: full-end;
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------
+//      Utilities
+// ------------------------------------------------------------------------------
+

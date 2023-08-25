@@ -1,0 +1,26 @@
+@use "sass:map";
+@use "sass:list";
+
+$bps: (mobile, tablet, desktop, desktop-large);
+
+@function is-map($var) {
+    @return type-of($var) == 'map';
+}
+
+@function get-smallest-breakpoint($map) {
+    @each $bp in $bps {
+        @if map.get($map, $bp) {
+            @return $bp;
+        }
+    }
+    @return null;
+}
+
+@function get-next-highest-breakpoint($size) {
+    $index: list.index($bps, $size);
+    @if $index == (list.length($bps)) {
+        @return null;
+    } @else  {
+        @return list.nth($bps, $index + 1)
+    }
+}

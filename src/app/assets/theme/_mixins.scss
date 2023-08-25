@@ -1,0 +1,229 @@
+@use 'sass:math';
+@use 'sass:map';
+@import './functions';
+@import './breakpoints';
+@import './grid/variables';
+
+@mixin button-reset {
+    background-color: transparent;
+    border-width: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    padding: 0;
+}
+
+@mixin binary-input($round: false) {
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    :host {
+        --radio-size: 24px;
+        --radio-label-spacing: 16px;
+
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        grid-gap: var(--radio-label-spacing);
+
+
+        &[disabled="true"], &[disabled="true"] > * {
+            cursor: not-allowed;
+        }
+    }
+
+    label {
+        @include label;
+        position: relative;
+        display: block;
+        width: 100%;
+        padding-left: calc(var(--radio-size) + var(--radio-label-spacing));
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: var(--radio-size);
+            height: var(--radio-size);
+            border: solid 2px var(--color-grey-2);
+            transition: border ease-in-out 250ms;
+            background-color: white;
+            border-radius: if($round, 50%, 4px);
+        }
+    }
+
+    input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        clip: rect(0 0 0 0);
+    }
+
+    input:not([disabled]) + label {
+        cursor: pointer;
+    }
+
+    input[disabled] + label {
+        cursor: not-allowed;
+        color: var(--color-grey-4);
+
+        &::before {
+            border-color: var(--color-grey-1);
+        }
+    }
+
+    input:not([disabled]):not(:checked) + label:hover::before {
+        border: 6px solid var(--color-grey-3);
+    }
+
+    input:checked:not([disabled]) + label {
+        @include labelTitle;
+        letter-spacing: -0.1px;
+
+        &::before {
+            border: solid 6px var(--color-primary);
+        }
+    }
+
+    input:checked[disabled] + label::before {
+        border-width: 6px;
+    }
+}
+
+@mixin labelTitle {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+@mixin labelSmall {
+    line-height: 1.71;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-grey-5);
+}
+
+@mixin label {
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--color-grey-5);
+}
+
+@mixin labelSmallTitle {
+    line-height: 1.57;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+$default-cutoff-widths: (
+    mobile:     45px,
+    tablet:     160px,
+    desktop:    160px,
+);
+
+$cutoff-large-bottom-left: (
+    top-left: false,
+    top-right: false,
+    bottom-right: false,
+    bottom-left: $default-cutoff-widths,
+);
+
+$cutoff-small-bottom-right: (
+    top-left: false,
+    top-right: false,
+    bottom-right: (
+        mobile: 40px,
+        tablet: 40px,
+        desktop: 40px,
+    ),
+    bottom-left: false,
+);
+
+@mixin corner-cutoff($configs: $cutoff-large-bottom-left) {
+    $polygons: ();
+    $sizes: ();
+
+    @each $position, $config in $configs {
+        @if is-map($config) {
+            $sizes: map.merge($sizes, $config);
+            @each $size, $width in $config {
+                $current: #{map.get($polygons, $size)}, #{clip-path-corner($position, $width)};
+                $polygons: map.set($polygons, $size, $current);
+            }
+        } @else {
+            @each $size, $_ in $default-cutoff-widths {
+                $current: #{map.get($polygons, $size)}, #{clip-path-corner($position, $config)};
+                $polygons: map.set($polygons, $size, $current);
+            }
+        }
+    }
+
+    @each $size, $polygon in $polygons {
+        $next-bp: get-next-highest-breakpoint($size);
+        $next-polygon: map.get($polygons, $next-bp);
+        @if ($next-polygon == $polygon) {
+            $polygons: map.set($polygons, $next-bp, null);
+        }
+    }
+
+    $smallest-bp: get-smallest-breakpoint($sizes);
+    $smallest: map.get($polygons, $smallest-bp);
+    $polygons: map.set($polygons, $smallest-bp, null);
+
+    @each $size, $polygon in $polygons {
+        @if $polygon {
+            @include media-breakpoint-up($size) {
+                clip-path: polygon($polygon);
+            }
+        }
+    }
+
+    clip-path: polygon($smallest);
+}
+
+@function clip-path-center($width: 80px) {
+    $angle: math.tan(16deg);
+    $height: $angle * $width;
+
+    @return polygon(0 0, calc(50% - #{math.div($width, 2)}) 0, 50% #{$height}, calc(50% + #{math.div($width, 2)}) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+@function clip-path-corner($position, $width: false) {
+    $angle: math.tan(32deg);
+    @if $width {
+        $height: $angle * $width;
+        @if $position == top-left {
+            @return 0 $height, $width 0;
+        }
+        @if $position == top-right {
+            @return calc(100% - #{$width}) 0, 100% $height;
+        }
+        @if $position == bottom-right {
+            @return 100% calc(100% - #{$height}), calc(100% - #{$width}) 100%;
+        }
+        @if $position == bottom-left {
+            @return $width 100%, 0 calc(100% - #{$height});
+        }
+    } @else {
+        @if $position == top-left {
+            @return -1px -1px;
+        }
+        @if $position == top-right {
+            @return 101% -1px;
+        }
+        @if $position == bottom-right {
+            @return 101% 101%;
+        }
+        @if $position == bottom-left {
+            @return -1px 100%;
+        }
+    }
+}
