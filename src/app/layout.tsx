@@ -1,5 +1,6 @@
 import './globals.scss'
 import type { Metadata } from 'next'
+import '@fontsource-variable/montserrat'
 
 export const metadata: Metadata = {
   title: 'Toad crunchies',
